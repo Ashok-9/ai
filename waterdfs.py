@@ -25,14 +25,14 @@ def water_jug_dfs(start, target, sizes):
                 new_state = (state[0] + amount, state[1] - amount)
             else:
                 continue
-            stack.append((new_state, path + [move]))
+            stack.append((new_state, path + [state]))
     return None
 
 
 # Example input:
 start = (0, 0)   # initial state of jugs A and B
-target = (4, 0)  # goal state of jug A having 4 liters of water
-sizes = (7, 5)   # sizes of jugs A and B, respectively
+target = (2, 0) # goal state of jug A having 4 liters of water
+sizes = (4,3)   # sizes of jugs A and B, respectively
 
 # Call the function:
 path = water_jug_dfs(start, target, sizes)

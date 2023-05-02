@@ -11,3 +11,5 @@ scores = list(map(int,input("Enter the values of an array: ").split()))
 treeDepth = math.log(len(scores), 2)
 print("The optimal value is : ", end = "")
 print(minimax(0, 0, True, scores, treeDepth))
+
+

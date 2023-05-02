@@ -6,7 +6,7 @@ def water_jug_bfs(start, target, sizes):
     while queue:
         state, path = queue.popleft()
         if state == target:
-            return path
+            return path+[state]
         if state in visited:
             continue
         visited.add(state)
@@ -27,7 +27,8 @@ def water_jug_bfs(start, target, sizes):
                 new_state = (state[0] + amount, state[1] - amount)
             else:
                 continue
-            queue.append((new_state, path + [move]))
+            queue.append((new_state, path + [state]))
+    
     return None
 # Example input:
 start = (0, 0)   # initial state of jugs A and B

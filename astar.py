@@ -1,55 +1,53 @@
-def a_star(start, goal, graph):
-    open_set = {start}
-    closed_set = set()
-    g_score = {start: 0}
-    parents = {start: None}
-    
-    while open_set:
-        current = min(open_set, key=lambda x: g_score[x] + heuristic(x, goal))
-        
+from queue import PriorityQueue
+
+def a_star(start, goal, neighbors_func, heuristic_func):
+
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
+    came_from = {start: None}
+    cost_so_far = {start: 0}
+
+    while not frontier.empty():
+        current = frontier.get()
+
         if current == goal:
             path = []
             while current != start:
                 path.append(current)
-                current = parents[current]
+                current = came_from[current]
             path.append(start)
             path.reverse()
             return path
-        
-        open_set.remove(current)
-        closed_set.add(current)
-        
-        for neighbor, weight in graph[current]:
-            tentative_g_score = g_score[current] + weight
-            if neighbor in closed_set:
-                continue
-            if neighbor not in open_set or tentative_g_score < g_score[neighbor]:
-                parents[neighbor] = current
-                g_score[neighbor] = tentative_g_score
-                if neighbor not in open_set:
-                    open_set.add(neighbor)
-                    
+
+        for neighbor in neighbors_func(current):
+            new_cost = cost_so_far[current] + heuristic_func(current, neighbor)
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                cost_so_far[neighbor] = new_cost
+                priority = new_cost + heuristic_func(goal, neighbor)
+                frontier.put(neighbor, priority)
+                came_from[neighbor] = current
+
     return None
+start = 'A'
+goal = 'E'
 
-def heuristic(node, goal):
-    h_dist = {
-        'A': 11,
-        'B': 6,
-        'C': 99,
-        'D': 1,
-        'E': 7,
-        'G': 0
-    }
-    return h_dist[node]
-
-graph = {
-    'A': [('B', 2), ('E', 3)],
-    'B': [('C', 1), ('G', 9)],
-    'C': [],
-    'D': [('G', 1)],
-    'E': [('D', 6)],
-    'G': []
+# A dictionary of neighbors for each node
+neighbors = {
+    'A': {'B': 1, 'C': 4},
+    'B': {'A': 1, 'C': 2, 'D': 5},
+    'C': {'A': 4, 'B': 2, 'D': 1},
+    'D': {'B': 5, 'C': 1, 'E': 2},
+    'E': {'D': 2}
 }
 
-path = a_star('A', 'G', graph)
-print(path)
+# A dictionary of estimated distances between nodes
+heuristic = {
+    'A': 4,
+    'B': 2,
+    'C': 4,
+    'D': 1,
+    'E': 0
+}
+
+# Call the function
+path = a_star(start, goal, lambda node: neighbors[node], lambda node1, node2: heuristic[node2])
