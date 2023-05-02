@@ -1,53 +1,52 @@
-from queue import PriorityQueue
+import heapq
 
-def a_star(start, goal, neighbors_func, heuristic_func):
-
-    frontier = PriorityQueue()
-    frontier.put(start, 0)
-    came_from = {start: None}
-    cost_so_far = {start: 0}
-
-    while not frontier.empty():
-        current = frontier.get()
-
-        if current == goal:
-            path = []
-            while current != start:
-                path.append(current)
-                current = came_from[current]
-            path.append(start)
-            path.reverse()
-            return path
-
-        for neighbor in neighbors_func(current):
-            new_cost = cost_so_far[current] + heuristic_func(current, neighbor)
-            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
-                priority = new_cost + heuristic_func(goal, neighbor)
-                frontier.put(neighbor, priority)
-                came_from[neighbor] = current
-
+def a_star(start, goal, graph_nodes, h_dist):
+    pq = [(0, start, [])]
+    visited = set()
+    
+    while pq:
+        dist, node, path = heapq.heappop(pq)
+        
+        if node == goal:
+            return path + [node]
+        
+        if node in visited:
+            continue
+            
+        visited.add(node)
+        
+        for neighbor, neighbor_dist in graph_nodes.get(node, []):
+            if neighbor not in visited:
+                f = dist + neighbor_dist + h_dist[neighbor]
+                heapq.heappush(pq, (f, neighbor, path + [node]))
+    
     return None
-start = 'A'
-goal = 'E'
 
-# A dictionary of neighbors for each node
-neighbors = {
-    'A': {'B': 1, 'C': 4},
-    'B': {'A': 1, 'C': 2, 'D': 5},
-    'C': {'A': 4, 'B': 2, 'D': 1},
-    'D': {'B': 5, 'C': 1, 'E': 2},
-    'E': {'D': 2}
+
+graph_nodes = {
+    'A': [('B', 2), ('E', 3)],
+    'B': [('C', 1), ('G', 9)],
+    'C': [],
+    'E': [('D', 6)],
+    'D': [('G', 1)],
 }
 
-# A dictionary of estimated distances between nodes
-heuristic = {
-    'A': 4,
-    'B': 2,
-    'C': 4,
+h_dist = {
+    'A': 11,
+    'B': 1,
+    'C': 99,
     'D': 1,
-    'E': 0
+    'E': 7,
+    'G': 0,
 }
 
-# Call the function
-path = a_star(start, goal, lambda node: neighbors[node], lambda node1, node2: heuristic[node2])
+start = "A"
+goal = "G"
+
+path = a_star(start, goal, graph_nodes, h_dist)
+
+if path:
+    print(" -> ".join(path))
+else:
+    print("No path found.")
+
